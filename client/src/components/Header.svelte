@@ -1,0 +1,37 @@
+<script>
+    export let active;
+</script>
+
+<header>
+    <nav>
+        <div class="navigation">
+            <a href="/" class:active={active === '/'}>Home</a>
+            <a href="/about" class:active={active === '/about'}>About Us</a>
+        </div>
+        <div class="register">
+            <a href="/register" class:active={active === '/register'}>Register / Login</a>
+        </div>
+    </nav>
+</header>
+
+<style>
+    header {
+        background-color: #f0f0f0;
+        padding: 10px;
+        width: 100%;
+    }
+
+    nav {
+        display: flex;
+    }
+
+    nav a {
+        margin: 0 10px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    nav a:hover {
+        color: #5e5d5d;
+    }
+</style>
