@@ -47,9 +47,13 @@
 
             if (response.ok) {
                 document.body.style.cursor = 'wait';
-
                 console.log("response ok");
                 displayMessage('User logged in!', 'success');
+
+                response.json().then(data => {
+                    sessionStorage.setItem('token', data.token); //if user closes browser or window, token is gone
+                });
+
                 setTimeout(() => {
                     window.location.href = '/'; //redirect user to homepage after succesful login
                 }, 2000);

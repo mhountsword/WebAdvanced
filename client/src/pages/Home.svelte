@@ -1,11 +1,9 @@
 <script>
-    import FilterMenu from '../components/FilterMenu.svelte';
-    import AuctionList from '../components/AuctionList.svelte';
+    import ItemList from '../components/ItemList.svelte';
 </script>
 
 <div class="container">
-    <FilterMenu />
-    <AuctionList />
+    <ItemList />
 </div>
 
 <style>

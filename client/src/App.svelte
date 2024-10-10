@@ -6,6 +6,7 @@
   import Register from "./pages/Register.svelte";
   import Login from "./pages/Login.svelte";
   import Header from "./components/Header.svelte";
+  import ItemDetails from "./pages/ItemDetails.svelte";
 
   let page;
   let params;
@@ -22,6 +23,11 @@
   });
   router('/register', (ctx) => {
     page = Register;
+    currentRoute = ctx.pathname;
+    params = ctx;
+  });
+  router('/item-details', (ctx) => {
+    page = ItemDetails;
     currentRoute = ctx.pathname;
     params = ctx;
   });

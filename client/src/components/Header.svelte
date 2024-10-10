@@ -1,4 +1,5 @@
 <script>
+    import { isLoggedIn, handleLogout } from '../js/Logout.js'; // Import the functions
     export let active;
 </script>
 
@@ -9,7 +10,11 @@
             <a href="/about" class:active={active === '/about'}>About Us</a>
         </div>
         <div class="register">
-            <a href="/register" class:active={active === '/register'}>Register / Login</a>
+            {#if isLoggedIn()}
+                <a href="/logout" on:click|preventDefault={handleLogout}>Logout</a>
+            {:else}
+                <a href="/register" class:active={active === '/register'}>Register / Login</a>
+            {/if}
         </div>
     </nav>
 </header>
