@@ -4,6 +4,7 @@
 
     // Placeholder for bids data (fetch from API later)
     let bids = [
+        //TODO: make dynamic
         { username: 'user1', amount: 15 },
         { username: 'user2', amount: 20 },
         // ... more bid data
@@ -14,9 +15,8 @@
 </script>
 
 <h1>{selectedAuction.title}</h1>
-<img src={selectedAuction.image} alt="Album cover" />
 <p>{selectedAuction.artist}</p>
-<p>{selectedAuction.description}</p> <!-- TODO: add later -->
+<!-- <p>{selectedAuction.description}</p> --> <!-- TODO: add later -->
 
 <h2>Bids</h2>
 <ul>
@@ -26,3 +26,9 @@
 </ul>
 
 <h3>Highest Bid: ${highestBid}</h3>
+
+<style>
+    ul {
+        list-style:none;
+    }
+</style>

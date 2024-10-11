@@ -4,7 +4,7 @@ export function isLoggedIn() {
 
 export async function handleLogout() {
     try {
-        const response = await fetch('http://localhost:3000/auth/logout', {
+        const response = await fetch('http://localhost:3000/api/auth/logout', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + sessionStorage.getItem('token')

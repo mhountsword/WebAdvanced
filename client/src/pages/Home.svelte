@@ -1,9 +1,11 @@
 <script>
     import ItemList from '../components/ItemList.svelte';
+    import AddItem from '../components/AddItem.svelte';
 </script>
 
 <div class="container">
     <ItemList />
+    <AddItem />
 </div>
 
 <style>

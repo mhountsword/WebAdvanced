@@ -1,5 +1,5 @@
 <script>
-    import { isLoggedIn, handleLogout } from '../js/Logout.js'; // Import the functions
+    import { isLoggedIn, handleLogout } from '../js/logout.js'; // Import the functions
     export let active;
 </script>
 

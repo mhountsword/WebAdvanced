@@ -71,6 +71,7 @@ export const loginUser = async (req, res) => {
             'secret-key',
             { expiresIn: '2h' } // token expiration: 2 hours
         );
+        console.log(token);
         return res.status(statusCodes.OK).json({ message: 'User logged in successfully!', token: token});
     } catch(error) {
         console.log(error);

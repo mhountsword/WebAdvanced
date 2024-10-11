@@ -1,30 +1,32 @@
 <script>
-    //placeholder for filter data (fetch from API later)
+    import {onMount} from "svelte";
+    let items = [];
     let genres = ['Hip-Hop', 'Rock', 'Pop']; // Example genre options
     let selectedArtist = '';
+    let selectedTitle = '';
     let selectedGenre = '';
 
-    //placeholder for item data (fetch from API later)
-    let items = [
-        { title: 'Songs For The Deaf', artist: 'Queens Of the Stone Age', image: '...', genre: 'Rock'},
-        { title: 'Nevermind', artist: 'Nirvana', image: '...', genre: 'Rock'},
-        { title: 'Blonde', artist: 'Frank Ocean', image: '...', genre: 'R&B'}
-        // ... more item data later
-    ];
+    //retrieve list of items
+    onMount(async () => {
+        const response = await fetch('http://localhost:3000/api/items');
+        try {
+            if (response.ok) {
+                items = await response.json();
+            } else {
+                console.error('Error fetching items:', response.status);
+            }
+        } catch (error) {
+            console.error('Error fetching items:', error);
+        }
+    });
 
     //reactive declaration for filtered items
     $: filtereditems = items.filter(item => {
         const matchesArtist = selectedArtist === '' || item.artist.toLowerCase().includes(selectedArtist.toLowerCase());
+        const matchesTitle = selectedTitle === '' || item.title.toLowerCase().includes(selectedTitle.toLowerCase());
         const matchesGenre = selectedGenre === '' || item.genre === selectedGenre;
-        return matchesArtist && matchesGenre;
+        return matchesArtist &&  matchesTitle && matchesGenre;
     });
-
-    //function to handle filter changes
-    function handleFilterChange() {
-        console.log('Artist:', selectedArtist);
-        console.log('Genre:', selectedGenre);
-        // Filtering logic is now handled by the reactive statement
-    }
 
     function handleItemClick(item) {
         sessionStorage.setItem('selectedAuction', JSON.stringify(item)); //save item details in session to forward to item page
@@ -39,11 +41,13 @@
     <ul>
         <li>
             <label for="artist">Artist:</label>
-            <input type="text" id="artist" bind:value={selectedArtist} on:input={handleFilterChange} />
+            <input type="text" id="artist" bind:value={selectedArtist} />
+            <label for="artist">Title:</label>
+            <input type="text" id="name" bind:value={selectedTitle} />
         </li>
         <li>
             <label for="genre">Genre:</label>
-            <select id="genre" bind:value={selectedGenre} on:change={handleFilterChange}>
+            <select id="genre" bind:value={selectedGenre}>
                 <option value="">All Genres</option> {#each genres as genre}
                 <option value={genre}>{genre}</option>
             {/each}
@@ -59,7 +63,6 @@
             <li class="item-card">
                 <a href="/item-details" on:click|preventDefault={() => handleItemClick(item)}>
                     <h3>{item.title}</h3>
-                    <img src={item.image} alt="Album cover"/>
                     <p>{item.artist}</p>
                 </a>
             </li>
