@@ -1,60 +1,60 @@
 <script>
-    import { isLoggedIn} from '../js/logout.js';
+    import { isLoggedIn } from '../js/logout.js';
+    import { items } from '../js/stores.js';
+
     let showModal = false;
     let errorMessage = '';
     let itemTitle = '';
     let itemArtist = '';
     let itemGenre = '';
 
-    // Function to check if the user is an admin
     function isAdmin() {
         const token = sessionStorage.getItem('token');
         if (token) {
-            const decodedToken = parseJwt(token); // Function to decode the JWT (see below)
-            console.log(token);
-            console.log(decodedToken.userRole === 'admin');
+            const decodedToken = parseJwt(token);
             return decodedToken.userRole === 'admin';
         }
         return false;
     }
 
-    // Helper function to decode the JWT
-    function parseJwt (token) {
+    function parseJwt(token) {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
-
         return JSON.parse(jsonPayload);
     }
 
     async function handleAddItem() {
-
         try {
+            // Send POST request to add the new item
             const response = await fetch('http://localhost:3000/api/items', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + sessionStorage.getItem('token') // Include JWT for authorization
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 },
-                body: JSON.stringify({
-                    title: itemTitle,
-                    artist: itemArtist,
-                    genre: itemGenre
-                })
+                body: JSON.stringify({ title: itemTitle, artist: itemArtist, genre: itemGenre })
             });
 
+            // Wait for the response and process the new item
             if (response.ok) {
-                // Item added successfully
-                showModal = false; // Close the modal
-                // Optionally, you can refresh the item list or display a success message
+                showModal = false;
+                const responseData = await response.json();
+                const newItem = responseData.item;
+
+                // Ensure data is not added until we get it from the API
+                console.log('New item added:', newItem);
+
+                // Update the items store after getting the new item data
+                items.update(existingItems => [...existingItems, newItem]);
             } else {
                 const errorData = await response.json();
-                errorMessage = errorData.message; // Display the error message from the backend
+                errorMessage = errorData.message;
             }
         } catch (error) {
-            errorMessage = 'Failed to add item'; // Handle network or other errors
+            errorMessage = 'Failed to add item';
         }
     }
 </script>
@@ -68,7 +68,7 @@
 {#if showModal}
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content">
-            <h2 id="modal-title">Add New Item</h2>
+            <h2>Add New Item</h2>
             <form on:submit|preventDefault={handleAddItem}>
                 <div>
                     <label for="title">Title:</label>
@@ -82,14 +82,14 @@
                     <label for="genre">Genre:</label>
                     <input type="text" id="genre" bind:value={itemGenre} required />
                 </div>
-                <div class="error">{errorMessage}
-                    <button type="submit">Add Item</button>
-                    <button type="button" on:click={() => showModal = false}>Cancel</button>
-                </div>
+                <div class="error">{errorMessage}</div>
+                <button type="submit">Add Item</button>
+                <button type="button" on:click={() => showModal = false}>Cancel</button>
             </form>
         </div>
     </div>
 {/if}
+
 <style>
     /* Modal styles */
     .modal {
@@ -98,10 +98,9 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background overlay */
+        background-color: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
-
         align-items: center;
     }
 
@@ -110,10 +109,8 @@
         padding: 20px;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-
     }
 
-    /* Error message styles */
     .error {
         color: red;
         margin-top: 10px;

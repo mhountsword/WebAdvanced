@@ -1,36 +1,27 @@
 <script>
-    import {onMount} from "svelte";
-    let items = [];
-    let genres = ['Hip-Hop', 'Rock', 'Pop']; // Example genre options
+    import { items } from '../js/stores.js';
+
+    let genres = ['Hip-Hop', 'Rock', 'Pop'];
     let selectedArtist = '';
     let selectedTitle = '';
     let selectedGenre = '';
 
-    //retrieve list of items
-    onMount(async () => {
-        const response = await fetch('http://localhost:3000/api/items');
-        try {
-            if (response.ok) {
-                items = await response.json();
-            } else {
-                console.error('Error fetching items:', response.status);
-            }
-        } catch (error) {
-            console.error('Error fetching items:', error);
-        }
-    });
+    // We will now use $items directly, removing tempItems
+    let filteredItems = [];
 
-    //reactive declaration for filtered items
-    $: filtereditems = items.filter(item => {
+    // Use $items directly to filter
+    $: filteredItems = $items.filter(item => {
+        console.log($items);
         const matchesArtist = selectedArtist === '' || item.artist.toLowerCase().includes(selectedArtist.toLowerCase());
         const matchesTitle = selectedTitle === '' || item.title.toLowerCase().includes(selectedTitle.toLowerCase());
         const matchesGenre = selectedGenre === '' || item.genre === selectedGenre;
-        return matchesArtist &&  matchesTitle && matchesGenre;
+        items.update(existingItems => [...existingItems])
+        return matchesArtist && matchesTitle && matchesGenre;
     });
 
     function handleItemClick(item) {
-        sessionStorage.setItem('selectedAuction', JSON.stringify(item)); //save item details in session to forward to item page
-        window.location.href = '/item-details'; //redirect to item-details page
+        sessionStorage.setItem('selectedAuction', JSON.stringify(item));
+        window.location.href = '/item-details';
     }
 </script>
 
@@ -42,32 +33,30 @@
         <li>
             <label for="artist">Artist:</label>
             <input type="text" id="artist" bind:value={selectedArtist} />
-            <label for="artist">Title:</label>
-            <input type="text" id="name" bind:value={selectedTitle} />
+            <label for="title">Title:</label>
+            <input type="text" id="title" bind:value={selectedTitle} />
         </li>
         <li>
             <label for="genre">Genre:</label>
             <select id="genre" bind:value={selectedGenre}>
-                <option value="">All Genres</option> {#each genres as genre}
-                <option value={genre}>{genre}</option>
-            {/each}
+                <option value="">All Genres</option>
+                {#each genres as genre}
+                    <option value={genre}>{genre}</option>
+                {/each}
             </select>
         </li>
     </ul>
 </div>
 
-
-<ul>
-    <div class="item-container">
-        {#each filtereditems as item}
-            <li class="item-card">
-                <a href="/item-details" on:click|preventDefault={() => handleItemClick(item)}>
-                    <h3>{item.title}</h3>
-                    <p>{item.artist}</p>
-                </a>
-            </li>
-        {/each}
-    </div>
+<ul class="item-container">
+    {#each filteredItems as item}
+        <li class="item-card">
+            <a href="/item-details" on:click|preventDefault={() => handleItemClick(item)}>
+                <h3>{item.title}</h3>
+                <p>{item.artist}</p>
+            </a>
+        </li>
+    {/each}
 </ul>
 
 <style>
@@ -104,5 +93,4 @@
         list-style: none;
         padding: 20px;
     }
-
 </style>
