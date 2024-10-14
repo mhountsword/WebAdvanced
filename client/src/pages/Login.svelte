@@ -7,4 +7,4 @@
 <p>
     No account yet? <a href="/register">click here to register!</a>
 </p>
-<LoginForm includeEmail={false}/> <!--omit email, only username & password required-->
+<LoginForm registering={false}/> <!--omit email, only username & password required-->

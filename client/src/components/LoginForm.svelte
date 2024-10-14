@@ -2,12 +2,13 @@
     let email = '';
     let username = '';
     let password = '';
+    let passwordConfirm = '';
     let buttonPrompt = '';
     let message = '';
     let messageType = ''; // 'success' or 'error'
-    export let includeEmail = true; // Whether to include email submission
+    export let registering = true; // Whether to include email submission
 
-    if (includeEmail) {
+    if (registering) {
         buttonPrompt = "Register";
     } else {
         buttonPrompt = "Login";
@@ -19,11 +20,11 @@
     }
 
     async function handleSubmit() {
-        if (includeEmail) {
+        if (registering) { //one submit form for both registering & logging in, simply a change based on whether or not to include E-mail & password confirm
             const response = await fetch('http://localhost:3000/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password }),
+                body: JSON.stringify({ username, email, password, passwordConfirm }),
             });
 
             if (response.ok) {
@@ -31,48 +32,53 @@
 
                 displayMessage('User registered!', 'success');
                 setTimeout(() => {
-                    window.location.href = '/login'; //redirect user to login after succesful login
+                    loginUser(); //login automatically after registering
                 }, 2000); //small delay (2s) to have visual confirmation for user
             } else {
                 const data = await response.json();
                 displayMessage(data.message || 'Registration failed', 'error');
             }
         } else {
-            console.log(password);
-            const response = await fetch('http://localhost:3000/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
+            await loginUser();
+        }
+    }
+
+    async function loginUser() {
+        console.log(password);
+        const response = await fetch('http://localhost:3000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+
+        if (response.ok) {
+            document.body.style.cursor = 'wait';
+            console.log("response ok");
+            displayMessage('User logged in!', 'success');
+
+            response.json().then(data => {
+                sessionStorage.setItem('token', data.token); //if user closes browser or window, token is gone
             });
 
-            if (response.ok) {
-                document.body.style.cursor = 'wait';
-                console.log("response ok");
-                displayMessage('User logged in!', 'success');
+            setTimeout(() => {
+                window.location.href = '/'; //redirect user to homepage after succesful login
+            }, 2000);
 
-                response.json().then(data => {
-                    sessionStorage.setItem('token', data.token); //if user closes browser or window, token is gone
-                });
-
-                setTimeout(() => {
-                    window.location.href = '/'; //redirect user to homepage after succesful login
-                }, 2000);
-
-            } else {
-                console.log("response NOT ok");
-                const data = await response.json();
-                displayMessage(data.message || 'Login failed', 'error');
-            }
+        } else {
+            console.log("response NOT ok");
+            const data = await response.json();
+            displayMessage(data.message || 'Login failed', 'error');
         }
     }
 </script>
 
-<form on:submit|preventDefault={handleSubmit}> {#if includeEmail}
+<form on:submit|preventDefault={handleSubmit}>
+    {#if registering}
     <div>
         <label for="email">Email:</label>
         <input type="email" id="email" bind:value={email} required>
     </div>
-{/if}
+    {/if}
 
     <div>
         <label for="username">Username:</label>
@@ -82,6 +88,12 @@
         <label for="password">Password:</label>
         <input type="password" id="password" bind:value={password} required>
     </div>
+    {#if registering}
+    <div>
+        <label for="password-confirm">Password Confirm:</label>
+        <input type="password" id="password" bind:value={passwordConfirm} required>
+    </div>
+    {/if}
     <div>
         {#if message}
             <p class:success={messageType === 'success'} class:error={messageType === 'error'}>

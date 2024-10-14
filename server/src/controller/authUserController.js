@@ -23,13 +23,17 @@ const users = [
 ];
 export const registerNewUser = async (req, res) => {
     try{
-        const {username, email, password} = req.body;
-        const hash = await bcrypt.hash(password, saltRounds);
+        const {username, email, password, passwordConfirm} = req.body;
 
-        //TODO encryption & checks & robust logging
         if(!username || !email || !password) {
-            return res.status(statusCodes.BAD_REQUEST);
+            return res.status(statusCodes.BAD_REQUEST).json({ message: 'input missing! make sure you have all input fields filled in'});
         }
+
+        if(password !== passwordConfirm) {
+            return res.status(statusCodes.BAD_REQUEST).json({ message: 'passwords do not match!'});
+        }
+
+        const hash = await bcrypt.hash(password, saltRounds);
 
         if(users.find(user => user.email === email) || users.find(user => user.username === username)){
             return res.status(statusCodes.BAD_REQUEST).json({ message: 'username / email already exists!'});
