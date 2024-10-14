@@ -1,5 +1,5 @@
 <script>
-    import { items } from '../js/stores.js';
+    import { items } from '../../js/stores.js';
 
     let genres = ['Hip-Hop', 'Rock', 'Pop'];
     let selectedArtist = '';

@@ -1,6 +1,6 @@
 <script>
-    import { isLoggedIn } from '../js/logout.js';
-    import { items } from '../js/stores.js';
+    import { isLoggedIn } from '../../js/logout.js';
+    import { items } from '../../js/stores.js';
 
     let showModal = false;
     let errorMessage = '';
