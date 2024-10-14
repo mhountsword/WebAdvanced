@@ -1,6 +1,6 @@
 <script>
-    import ItemList from '../components/items/ItemList.svelte';
-    import AddItem from '../components/items/AddItem.svelte';
+    import ItemList from '../components/ItemList.svelte';
+    import AddItem from '../components/AddItem.svelte';
 </script>
 
 <div class="container">

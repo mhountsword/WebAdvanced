@@ -1,30 +1,27 @@
 <script>
-    import {items} from '../../js/stores.js';
-    import ItemModal from './ItemModal.svelte';
-    import ItemActions from './ItemActions.svelte';
+    import { items } from '../js/stores.js';
 
-    let showModal = false;
     let genres = ['Hip-Hop', 'Rock', 'Pop'];
     let selectedArtist = '';
     let selectedTitle = '';
     let selectedGenre = '';
+
+    // We will now use $items directly, removing tempItems
     let filteredItems = [];
 
+    // Use $items directly to filter
     $: filteredItems = $items.filter(item => {
+        console.log($items);
         const matchesArtist = selectedArtist === '' || item.artist.toLowerCase().includes(selectedArtist.toLowerCase());
         const matchesTitle = selectedTitle === '' || item.title.toLowerCase().includes(selectedTitle.toLowerCase());
         const matchesGenre = selectedGenre === '' || item.genre === selectedGenre;
+        items.update(existingItems => [...existingItems])
         return matchesArtist && matchesTitle && matchesGenre;
     });
 
     function handleItemClick(item) {
         sessionStorage.setItem('selectedAuction', JSON.stringify(item));
         window.location.href = '/item-details';
-    }
-
-    // Function to handle the 'edit' event from ItemActions
-    function handleEdit(event) {
-        showModal = event.detail.showModal;
     }
 </script>
 
@@ -35,9 +32,9 @@
     <ul>
         <li>
             <label for="artist">Artist:</label>
-            <input type="text" id="artist" bind:value={selectedArtist}/>
+            <input type="text" id="artist" bind:value={selectedArtist} />
             <label for="title">Title:</label>
-            <input type="text" id="title" bind:value={selectedTitle}/>
+            <input type="text" id="title" bind:value={selectedTitle} />
         </li>
         <li>
             <label for="genre">Genre:</label>
@@ -54,21 +51,13 @@
 <ul class="item-container">
     {#each filteredItems as item}
         <li class="item-card">
-            <div>
-                <a href="/item-details" on:click|preventDefault={() => handleItemClick(item)}>
-                    <h3>{item.title}</h3>
-                    <p>{item.artist}</p>
-                </a>
-            </div>
-            <ItemActions {itemId} on:edit={handleEdit}/>
+            <a href="/item-details" on:click|preventDefault={() => handleItemClick(item)}>
+                <h3>{item.title}</h3>
+                <p>{item.artist}</p>
+            </a>
         </li>
     {/each}
 </ul>
-
-<ItemModal
-        showModal={showModal}
-        on:cancel={() => showModal = false}
-/>
 
 <style>
     .item-container {
@@ -86,7 +75,6 @@
         width: 300px;
         text-align: center;
         transition: transform 0.2s;
-
     }
 
     .item-card a {
@@ -97,7 +85,7 @@
         color: black;
     }
 
-    li:hover {
+    .item-card:hover {
         transform: scale(1.05);
     }
 
@@ -105,5 +93,4 @@
         list-style: none;
         padding: 20px;
     }
-
 </style>

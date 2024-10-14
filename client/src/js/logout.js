@@ -11,7 +11,6 @@ export async function handleLogout() {
             }
         });
         if (response.ok) {
-            document.body.style.cursor = 'wait';
             setTimeout(() => {
                 window.location.href = '/'; //redirect user to homepage after succesful logout
             }, 2000);

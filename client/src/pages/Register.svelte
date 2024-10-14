@@ -7,6 +7,6 @@
 <p>
     Already a user? <a href="/login">click here to login!</a>
 </p>
-<LoginForm registering={true} /> <!--include email-->
+<LoginForm includeEmail={true} /> <!--include email-->
 
 

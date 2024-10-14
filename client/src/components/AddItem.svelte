@@ -1,15 +1,12 @@
 <script>
-    import { isLoggedIn } from '../../js/logout.js';
-    import { items } from '../../js/stores.js';
+    import { isLoggedIn } from '../js/logout.js';
+    import { items } from '../js/stores.js';
 
-    //exports for props to edit item
     let showModal = false;
     let errorMessage = '';
     let itemTitle = '';
     let itemArtist = '';
     let itemGenre = '';
-    let mode = 'add';
-    let itemId = null;
 
     function isAdmin() {
         const token = sessionStorage.getItem('token');
@@ -31,36 +28,33 @@
 
     async function handleAddItem() {
         try {
-            if (mode === 'add') {
-                // ... (logica voor het toevoegen van een item blijft hetzelfde) ...
-            } else if (mode === 'edit') {
-                // Send PUT request to update the item
-                const response = await fetch(`http://localhost:3000/api/items/${itemId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-                    },
-                    body: JSON.stringify({
-                        title: itemTitle, artist: itemArtist, genre: itemGenre })
-                });
+            // Send POST request to add the new item
+            const response = await fetch('http://localhost:3000/api/items', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+                },
+                body: JSON.stringify({ title: itemTitle, artist: itemArtist, genre: itemGenre })
+            });
 
-                if (response.ok) {
-                    showModal = false;
-                    const updatedItem = await response.json();
-                    // Update the items store
-                    items.update(allItems => {
-                        return allItems.map(item =>
-                            item.id === itemId ? updatedItem : item
-                        );
-                    });
-                } else {
-                    const errorData = await response.json();
-                    errorMessage = errorData.message;
-                }
+            // Wait for the response and process the new item
+            if (response.ok) {
+                showModal = false;
+                const responseData = await response.json();
+                const newItem = responseData.item;
+
+                // Ensure data is not added until we get it from the API
+                console.log('New item added:', newItem);
+
+                // Update the items store after getting the new item data
+                items.update(existingItems => [...existingItems, newItem]);
+            } else {
+                const errorData = await response.json();
+                errorMessage = errorData.message;
             }
         } catch (error) {
-            errorMessage = 'Failed to update item';
+            errorMessage = 'Failed to add item';
         }
     }
 </script>
