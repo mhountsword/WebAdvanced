@@ -1,9 +1,9 @@
 import statusCodes from 'http-status-codes';
 let itemId = 3; //this is highest itemId goes by default, so we start at 3
 const items = [
-    { title: 'Songs For The Deaf', artist: 'Queens Of the Stone Age', genre: 'Rock', release_year: 2002, item_id: 1 },
-    { title: 'Nevermind', artist: 'Nirvana', genre: 'Rock', release_year: 1991, item_id: 2  },
-    { title: 'Blonde', artist: 'Frank Ocean', genre: 'R&B', release_year: 2016, item_id: 3  }
+    { title: 'Songs For The Deaf', artist: 'Queens Of the Stone Age', genre: 'Rock', release_year: 2002, id: 1 },
+    { title: 'Nevermind', artist: 'Nirvana', genre: 'Rock', release_year: 1991, id: 2  },
+    { title: 'Blonde', artist: 'Frank Ocean', genre: 'R&B', release_year: 2016, id: 3  }
 ];
 
 export const getItems = (req, res) => {
@@ -23,7 +23,7 @@ export const addItem = (req, res) => {
             return res.status(statusCodes.BAD_REQUEST).json({ message: 'Missing required fields' });
         }
         itemId++;
-        newItem.item_id = itemId;
+        newItem.id = itemId;
         items.push(newItem);
 
         res.status(statusCodes.CREATED).json({ message: 'Item added successfully', item: newItem });

@@ -1,7 +1,8 @@
 <script>
     import { items } from '../../js/stores.js';
-    import ItemActions from './ItemActions.svelte';
     import { isAdmin } from "../../js/adminCheck.js";
+    import { openEditModal, deleteItem } from "../../js/itemActions.js"
+    import AddItem from "./AddItem.svelte";
 
     let genres = ['Hip-Hop', 'Rock', 'Pop'];
     let selectedArtist = '';
@@ -43,6 +44,11 @@
                 {/each}
             </select>
         </li>
+        {#if isAdmin()}
+            <li>
+                <AddItem />
+            </li>
+        {/if}
     </ul>
 </div>
 
@@ -55,25 +61,20 @@
                     <p>{item.artist}</p>
                 </a>
             </div>
+            {#if isAdmin()}
+                <button on:click={() => openEditModal(item)}>Edit</button>
+                <button on:click={() => deleteItem(item)}>Delete</button>
+            {/if}
         </li>
-        {#if isAdmin()}
-            <div class="button-wrapper">
-                <ItemActions />
-            </div>
-        {/if}
     {/each}
-
 </ul>
 
 
 <style>
-    .button-wrapper button{
-        margin-top:auto;
-    }
-
     .item-container {
-        display: flex;
-        overflow-x: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* Adjust 300px to your desired card width */
+        gap: 10px; /* Adjust gap as needed */
     }
 
     .item-card {
