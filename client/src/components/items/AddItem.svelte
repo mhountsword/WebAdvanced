@@ -1,30 +1,13 @@
 <script>
     import { isLoggedIn } from '../../js/logout.js';
     import { items } from '../../js/stores.js';
+    import { isAdmin } from '../../js/adminCheck.js';
 
     let showModal = false;
     let errorMessage = '';
     let itemTitle = '';
     let itemArtist = '';
     let itemGenre = '';
-
-    function isAdmin() {
-        const token = sessionStorage.getItem('token');
-        if (token) {
-            const decodedToken = parseJwt(token);
-            return decodedToken.userRole === 'admin';
-        }
-        return false;
-    }
-
-    function parseJwt(token) {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-    }
 
     async function handleAddItem() {
         try {
@@ -43,9 +26,6 @@
                 showModal = false;
                 const responseData = await response.json();
                 const newItem = responseData.item;
-
-                // Ensure data is not added until we get it from the API
-                console.log('New item added:', newItem);
 
                 // Update the items store after getting the new item data
                 items.update(existingItems => [...existingItems, newItem]);

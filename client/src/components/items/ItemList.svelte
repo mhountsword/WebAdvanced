@@ -1,21 +1,19 @@
 <script>
     import { items } from '../../js/stores.js';
+    import ItemActions from './ItemActions.svelte';
+    import { isAdmin } from "../../js/adminCheck.js";
 
     let genres = ['Hip-Hop', 'Rock', 'Pop'];
     let selectedArtist = '';
     let selectedTitle = '';
     let selectedGenre = '';
 
-    // We will now use $items directly, removing tempItems
     let filteredItems = [];
 
-    // Use $items directly to filter
     $: filteredItems = $items.filter(item => {
-        console.log($items);
         const matchesArtist = selectedArtist === '' || item.artist.toLowerCase().includes(selectedArtist.toLowerCase());
         const matchesTitle = selectedTitle === '' || item.title.toLowerCase().includes(selectedTitle.toLowerCase());
         const matchesGenre = selectedGenre === '' || item.genre === selectedGenre;
-        items.update(existingItems => [...existingItems])
         return matchesArtist && matchesTitle && matchesGenre;
     });
 
@@ -49,17 +47,30 @@
 </div>
 
 <ul class="item-container">
-    {#each filteredItems as item}
+    {#each filteredItems as item }
         <li class="item-card">
-            <a href="/item-details" on:click|preventDefault={() => handleItemClick(item)}>
-                <h3>{item.title}</h3>
-                <p>{item.artist}</p>
-            </a>
+            <div>
+                <a href="/item-details" on:click|preventDefault={() => handleItemClick(item)}>
+                    <h3>{item.title}</h3>
+                    <p>{item.artist}</p>
+                </a>
+            </div>
         </li>
+        {#if isAdmin()}
+            <div class="button-wrapper">
+                <ItemActions />
+            </div>
+        {/if}
     {/each}
+
 </ul>
 
+
 <style>
+    .button-wrapper button{
+        margin-top:auto;
+    }
+
     .item-container {
         display: flex;
         overflow-x: auto;
@@ -75,6 +86,12 @@
         width: 300px;
         text-align: center;
         transition: transform 0.2s;
+    }
+
+    .item-card div {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
     }
 
     .item-card a {
