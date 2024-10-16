@@ -1,12 +1,14 @@
 import ItemModal from "../components/items/ItemModal.svelte";
-import { items } from "./stores.js";
+import { items } from "./itemStore.js";
 
 export function openEditModal(item) {
   const modal = new ItemModal({
     target: document.body,
     props: {
-      item: item,
+      formData: { ...item },
       title: "Edit Item",
+      message: "",
+      messageType: "",
       saveItem: async (updatedItem) => {
         try {
           const response = await fetch(
@@ -22,26 +24,29 @@ export function openEditModal(item) {
           );
 
           if (response.ok) {
-            // After a successful update, refetch the updated item from the server
             const updatedItemFromServer = await response.json();
-
-            // Update the item in the store
-            items.update((existingItems) => {
-              return existingItems.map((i) =>
+            items.update((existingItems) =>
+              existingItems.map((i) =>
                 i.id === updatedItemFromServer.item.id
                   ? updatedItemFromServer.item
                   : i,
-              );
-            });
+              ),
+            );
 
-            modal.showMessage("Item updated successfully!", "success");
+            modal.$set({
+              message: "Item updated successfully!",
+              messageType: "success",
+            });
             setTimeout(() => modal.$destroy(), 1000);
           } else {
             const errorData = await response.json();
-            modal.showMessage(errorData.message, "error");
+            modal.$set({ message: errorData.message, messageType: "error" });
           }
         } catch (error) {
-          modal.showMessage("Failed to update item", "error");
+          modal.$set({
+            message: "Failed to update item",
+            messageType: "error",
+          });
         }
       },
       onClose: () => {
@@ -65,16 +70,21 @@ export async function deleteItem(item) {
       );
 
       if (response.ok) {
-        // Remove the deleted item from the store
+        // Update the store by removing the deleted item
         items.update((existingItems) =>
           existingItems.filter((i) => i.id !== item.id),
         );
+
+        // Show a success message via alert
+        alert("Item deleted successfully!");
       } else {
         const errorData = await response.json();
-        alert(errorData.message); // Using an alert for delete errors
+        // Show error message via alert
+        alert(errorData.message);
       }
     } catch (error) {
-      alert("Failed to delete item"); // Using an alert for delete errors
+      // Show failure message via alert
+      alert("Failed to delete item");
     }
   }
 }

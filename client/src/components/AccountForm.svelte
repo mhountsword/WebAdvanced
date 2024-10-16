@@ -1,22 +1,19 @@
 <script>
+    import MessageComponent from "./MessageComponent.svelte";
+
     let email = '';
     let username = '';
     let password = '';
     let passwordConfirm = '';
     let buttonPrompt = '';
-    let message = '';
-    let messageType = ''; // 'success' or 'error'
+    let displayMessage = '';
+    let messageType = '';
     export let registering = true; // Whether to include email submission
 
     if (registering) {
         buttonPrompt = "Register";
     } else {
         buttonPrompt = "Login";
-    }
-
-    function displayMessage(updatedMessage, type) {
-        messageType = type;
-        message = updatedMessage;
     }
 
     async function registerUser() {
@@ -30,14 +27,18 @@
             if (response.ok) {
                 document.body.style.cursor = 'wait';
 
-                displayMessage('User registered!', 'success');
+                messageType = 'success';
+                displayMessage = 'User registered!';
+
                 setTimeout(() => {
-                    displayMessage('Logging in user...')
+                    displayMessage = 'Logging in user...';
                     loginUser();
                 }, 1000); //small delay (2s) to have visual confirmation for user
+
             } else {
                 const data = await response.json();
-                displayMessage(data.message || 'Registration failed', 'error');
+                displayMessage = data.message || 'Registration failed';
+                messageType = 'error';
             }
         } else {
             await loginUser();
@@ -54,11 +55,13 @@
 
         if (response.ok) {
             document.body.style.cursor = 'wait';
-            console.log("response ok");
-            displayMessage('User logged in!', 'success');
+
+            displayMessage = 'User logged in!';
+            messageType = 'success';
 
             response.json().then(data => {
                 sessionStorage.setItem('token', data.token); //if user closes browser or window, token is gone
+                sessionStorage.setItem("username", username);
             });
 
             setTimeout(() => {
@@ -68,7 +71,9 @@
         } else {
             console.log("response NOT ok");
             const data = await response.json();
-            displayMessage(data.message || 'Login failed', 'error');
+
+            messageType = 'error';
+            displayMessage = data.message || 'Login failed';
         }
     }
 </script>
@@ -94,11 +99,12 @@
             <input type="password" id="password-confirm" bind:value={passwordConfirm} required>
         </div>
     {/if}
-    <div>
-        {#if message}
-            <p class:success={messageType === 'success'} class:error={messageType === 'error'}>
-                {message}
-            </p>
+    <div class="message-container">
+        {#if displayMessage}
+            <MessageComponent
+            message = {displayMessage}
+            messageType = {messageType}
+            />
         {/if}
     </div>
     <button type="submit">{buttonPrompt}</button>
@@ -119,13 +125,5 @@
     label {
         display: block;
         margin-bottom: 5px;
-    }
-
-    .success {
-        color: green;
-    }
-
-    .error {
-        color: red;
     }
 </style>

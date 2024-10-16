@@ -1,22 +1,19 @@
 <script>
-    export let item;
+    import MessageComponent from "../MessageComponent.svelte";
+    export let formData;
     export let onClose;
-    export let title; // Prop for the modal title
-    export let saveItem; // Prop for the save function
-    let message = '';
-    let messageType = '';
+    export let title;
+    export let saveItem;
+    export let message = '';
+    export let messageType = ''; // 'success' or 'error'
 
     function closeModal() {
+        message = '';
         onClose();
     }
 
     function handleSave() {
-        saveItem(item);
-    }
-
-    function showMessage(text, type) {
-        message = text;
-        messageType = type;
+        saveItem(formData); // Pass formData to saveItem
     }
 </script>
 
@@ -24,25 +21,33 @@
     <div class="modal-content">
         <h2>{title}</h2>
 
-        {#if message} <!-- Displaying error messages -->
-            <p class:success={messageType === 'success'} class:error={messageType === 'error'}>
-                {message}
-            </p>
-        {/if}
+        <div class="message-container">
+            {#if message}
+                <MessageComponent
+                message={message}
+                messageType={messageType}
+                />
+            {/if}
+        </div>
 
         <div class="input-group">
             <label for="title">Title:</label>
-            <input type="text" id="title" bind:value={item.title} />
+            <input type="text" id="title" bind:value={formData.title} required/>
         </div>
 
         <div class="input-group">
             <label for="artist">Artist:</label>
-            <input type="text" id="artist" bind:value={item.artist} />
+            <input type="text" id="artist" bind:value={formData.artist} required/>
         </div>
 
         <div class="input-group">
             <label for="genre">Genre:</label>
-            <input type="text" id="genre" bind:value={item.genre} />
+            <input type="text" id="genre" bind:value={formData.genre} required/>
+        </div>
+
+        <div class="input-group">
+            <label for="release-year">Release year:</label>
+            <input type="number" id="release-year" bind:value={formData.release_year} required/>
         </div>
 
         <div class="button-group">
@@ -73,9 +78,9 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         min-width: 300px;
         width: 15%;
-        display: flex; /* Enable flexbox for the modal content */
-        flex-direction: column; /* Align items vertically */
-        align-items: center; /* Center horizontally */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .input-group {
@@ -92,17 +97,5 @@
         margin-top: 10px;
         padding: 8px 12px;
         border-radius: 4px;
-    }
-
-    .message.success {
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-        color: #155724;
-    }
-
-    .message.error {
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-        color: #721c24;
     }
 </style>

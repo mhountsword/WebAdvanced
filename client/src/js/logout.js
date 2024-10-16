@@ -1,5 +1,8 @@
 export function isLoggedIn() {
-  return sessionStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
+  const username = sessionStorage.getItem("username");
+
+  return token ? { token, username } : null;
 }
 
 export async function handleLogout() {
@@ -15,7 +18,15 @@ export async function handleLogout() {
       setTimeout(() => {
         window.location.href = "/"; //redirect user to homepage after succesful logout
       }, 2000);
+
       sessionStorage.removeItem("token");
+      sessionStorage.removeItem("username");
+    } else if (response.status === 401) {
+      // Token expired / invalid
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("username");
+      console.error("Token expired or invalid. Redirecting to login.");
+      window.location.href = "/login"; // Redirect to login page
     } else {
       const errorData = await response.json();
       console.error("Logout failed:", errorData.message);

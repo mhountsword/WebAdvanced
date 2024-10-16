@@ -1,15 +1,17 @@
 <script>
     import { isLoggedIn } from '../../js/logout.js';
     import { isAdmin } from '../../js/adminCheck.js';
-    import ItemModal from './ItemModal.svelte'; // Import the ItemModal component
-    import { items } from '../../js/stores.js';
+    import { items } from '../../js/itemStore.js';
+    import ItemModal from './ItemModal.svelte';
 
     let showModal = false;
-    let item = { title: '', artist: '', genre: '' };
+    let formData = { title: '', artist: '', genre: '', release_year: '' }; // Update to formData
+    let displayMessage = '';
+    let messageType = '';
 
     function openAddModal() {
         showModal = true;
-        item = { title: '', artist: '', genre: '' }; // Reset the item object
+        formData = { title: '', artist: '', genre: '', release_year: '' }; // Reset the formData object
     }
 
     async function handleAddItem() {
@@ -20,19 +22,22 @@
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 },
-                body: JSON.stringify(item) // Send the item object directly
+                body: JSON.stringify(formData) // Send formData instead of item
             });
 
             if (response.ok) {
                 showModal = false;
                 const responseData = await response.json();
-                items.update(existingItems => [...existingItems, responseData.item]);
+                console.log(responseData);
+                items.update(existingItems => [...existingItems, responseData.item]); // Update store with new item
             } else {
                 const errorData = await response.json();
-                alert(errorData.message); // Show an alert for the error
+                displayMessage = errorData.message;
+                messageType = 'error';
             }
         } catch (error) {
-            alert('Failed to add item'); // Show an alert for the error
+            displayMessage = 'Failed to add item';
+            messageType = 'error';
         }
     }
 
@@ -49,9 +54,11 @@
 
 {#if showModal}
     <ItemModal
-            {item}
-            title="Add New Item"
-            saveItem={handleAddItem}
-            onClose={closeModal}
+    {formData}
+    title="Add New Item"
+    saveItem={handleAddItem}
+    onClose={closeModal}
+    message={displayMessage}
+    messageType={messageType}
     />
 {/if}
