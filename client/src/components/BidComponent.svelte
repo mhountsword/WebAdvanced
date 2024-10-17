@@ -11,7 +11,9 @@
     let user = null;
 
     async function fetchBids() {
+        console.log(itemId);
         const res = await fetch(`http://localhost:3000/api/items/${itemId}/bids`);
+        console.log(res);
         bids = await res.json();
         bids.sort((a,b) => b-a).slice(0,5); //display top 5 bids
         updateHighestBid();
