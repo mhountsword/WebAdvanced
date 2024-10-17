@@ -22,7 +22,7 @@
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 },
-                body: JSON.stringify(formData) // Send formData instead of item
+                body: JSON.stringify(formData)
             });
 
             if (response.ok) {

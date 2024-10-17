@@ -1,9 +1,10 @@
 <script>
     import FilterMenu from './FilterMenu.svelte';
+    import AddItem from "./AddItem.svelte";
+    import TimerComponent from '../TimerComponent.svelte';
     import { items } from '../../js/itemStore.js';
     import { isAdmin } from "../../js/adminCheck.js";
     import { openEditModal, deleteItem} from "../../js/itemActions.js";
-    import AddItem from "./AddItem.svelte";
 
     let selectedArtist = '';
     let selectedTitle = '';
@@ -64,6 +65,7 @@
                         <p>{item.artist}</p>
                         <p>Release year: {item.release_year}</p>
                     </a>
+                    <TimerComponent endTime={new Date(item.endTime).getTime()} />
                 </div>
                 {#if isAdmin()}
                     <button on:click={() => openEditModal(item)}>Edit</button>

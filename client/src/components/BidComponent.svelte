@@ -1,18 +1,19 @@
 <script>
     import {onMount} from "svelte";
     import { isLoggedIn } from "../js/logout.js";
+    import MessageComponent from "./MessageComponent.svelte";
 
     export let itemId; // Pass the item's ID from itemdetails.svelte
 
     let bids = [];
-    let newBid = { username: '', amount: 0 }; // Form for new bid
     let highestBid = 0;
+    let newBid = { username: '', amount: 0, highestBid };
     let user = null;
 
     async function fetchBids() {
         const res = await fetch(`http://localhost:3000/api/items/${itemId}/bids`);
         bids = await res.json();
-        bids.sort((a, b) => b.amount - a.amount);
+        bids.sort((a,b) => b-a).slice(0,5); //display top 5 bids
         updateHighestBid();
     }
 
@@ -26,7 +27,7 @@
 
     async function addBid() {
         newBid.username = user.username;
-        console.log(user.username);
+
         const res = await fetch(`http://localhost:3000/api/items/${itemId}/bids`, {
             method: 'POST',
             headers: {
@@ -67,9 +68,22 @@
     <h3>Add New Bid</h3>
     <form on:submit|preventDefault={addBid}>
         <input type="number" bind:value={newBid.amount} placeholder="Bid Amount" required />
-        <button type="submit">Add Bid</button>
+        {#if newBid.amount <= highestBid}
+            <button type="submit" disabled>Add Bid</button>
+            <MessageComponent
+            message="Bid must be higher than highest bid!"
+            messageType="error"
+            />
+        {:else}
+            <button type="submit">Add Bid</button>
+        {/if}
     </form>
+    {:else}
+    <h4>
+        Please <a href="/login">login</a> to add bids!
+    </h4>
     {/if}
+
 </div>
 
 <style>

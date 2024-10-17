@@ -32,7 +32,7 @@ export function isLoggedIn(req, res, next) {
     const token = authHeader.split(' ')[1]; // Extract token
 
     try {
-        req.user = jwt.verify(token, 'secret-key'); // Make sure to replace 'secret-key' with your actual key
+        req.user = jwt.verify(token, 'secret-key');
         next(); // Call the next middleware
     } catch (error) {
         console.log(error.message);
