@@ -1,11 +1,15 @@
 <script>
     import BidComponent from "../components/BidComponent.svelte";
     import TimerComponent from "../components/TimerComponent.svelte";
+    import { resetAuctionOnServer } from '../js/auctionReset.js'; // Function to reset the auction
 
     let selectedAuction = JSON.parse(sessionStorage.getItem('selectedAuction'));
 
     function handleAuctionEnd() {
-        console.log("Auction ended.");
+        // Reset the auction logic, e.g., by calling an API to reset it
+        resetAuctionOnServer(selectedAuction.id).then(updatedAuction => {
+            selectedAuction = updatedAuction; // Update the auction details
+        });
     }
 
     console.log(selectedAuction.endTime);

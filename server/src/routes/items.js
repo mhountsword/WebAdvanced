@@ -2,8 +2,7 @@ import express from 'express';
 
 import * as middleware from "../middleware/middleware.js";
 
-import * as itemController from '../controller/items/itemController.js';
-import * as itemServices from '../controller/items/itemServices.js';
+import * as itemController from '../controller/itemController.js';
 
 const router = express.Router();
 
@@ -14,6 +13,6 @@ router.put('/:id', middleware.requireAdmin, itemController.editItem);
 router.delete('/:id', middleware.requireAdmin, itemController.deleteItem);
 
 //bids
-router.get('/:id/bids', itemServices.getBids);
-router.post('/:id/bids', middleware.isLoggedIn, itemServices.addBid);
+router.get('/:id/bids', itemController.getBids);
+router.post('/:id/bids', middleware.isLoggedIn, itemController.addBid);
 export default router;
