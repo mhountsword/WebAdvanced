@@ -22,11 +22,8 @@ The table below shows an overview of which test covers which non-functional requ
 
 | Test | NF1 | NF2 | NF3 | NF4 | NF5 | NF6 | NF7 | NF8 | NF9 | NF10 | NF11 | NF12 | NF13 | NF14 | NF15 | NF16 | NF17 | NF18 | NF19 | 
 |:----:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-|  T1  |     |     |     |     |     |     |     |     |     |      |      |      |      |      |      |      |      |      |      |
-|  T2  |     |     |     |     |     |     |     |     |     |      |      |      |      |      |      |      |      |      |      |
-|  T3  |     |     |     |     |     |     |     |     |     |      |      |      |      |      |      |      |      |      |      |
-|  T4  |     |     |     |     |     |     |     |     |     |      |      |      |      |      |      |      |      |      |      |
-
+|  T1  |  x  |  x  |  x  |  x  |  x  |  x  |  x  |  x  |  x  |  x   |  x   |  x   |  x   |  x   |  x   |  x   |  x   |  x   |  x   |
+ 
 ## Test plan
 ### De Scope
 Ik ga tijdens het testen van mijn assignment focusen op de functionaliteit van de functionele en non-functionele requirements. 
@@ -153,8 +150,6 @@ Hier is nergens functionaliteit voor de gebruiker om een bid aan te passen of om
 | Bids kunnen niet aangepast worden nadat ze zijn geplaatst | X       | High     |         |   
 
 # Non-functional Tests
-## T1
-Ik ga eerst beginnen met alle zaken die de API wel en niet kan returnen.
 NF1: The API returns valid JSON objects or arrays.
 Uit Postman:
 ![img_15.png](img_15.png)
@@ -169,3 +164,87 @@ NF3: The API uses the correct HTTP verbs for its operations.<br>
 Zoals heirboven aangegeven, zijn de verbs correct. Er wordt een GET request gemaakt als items gefetched moeten worden, en een PUT om een item aan te passen.
 
 NF4: The API implements at least ReST level 3
+Het is me helaas niet gelukt om rest level 3 toe te passen. Al vind ik het wel gek dat dit niet is benoemd in de les! Aparte requirement.
+
+NF5: The API uses query parameters for filtering the result set
+Ook dit is me helaas niet gelukt (en de volgende functionalities over query filtering & sorting) al vindt ik dit ook een aparte requirement, gezien dat we Svelte gebruiken en onze applicatie kleinschalig is.
+
+NF8: Both front-end and backend provide descriptive error messages.
+Met de functionele tests heb ik aangeduid dat mijn backend dit inderdaad doet. Met mijn HTTP tests heb ik aangeduid dat mijn backend dit doet.
+
+NF9: Both front-end and backend apply the SoC principle.
+They do indeed.
+
+NF10: API endpoints have meaningful good and bad weather tests.
+In mijn HTTP tests heb ik tests gemaakt die aftrappen als alles goed gaat, maar ook al er dingen fout gaan, zoals Unauthorized of Forbidden endpoints.
+
+NF11: The traceabilty matrix, test plan and test report are documented in testing.md
+They are indeed.
+
+NF12: After registration the user should be logged in. They should not have to log in again before being able to place a bid
+Met de functionele tests heb ik aangeduid dat dit klopt.
+
+NF13 & NF14
+Both of these are applicable.
+
+NF15: The front-end is composed of re-usable components using a logical structure.
+Mijn itemModal, die wordt gebruikt om items toe te voegen en te editen, hergebruik ik. Ik hergebruik ook een timerComponent om de tijd op auctions te laten zien,
+een messageComponent voor foutmeldingen en een bidComponent om biedingen te laten zien.
+
+NF16: The API uses JWT for authorization.
+Dat doet het zeker. In mijn backend is op verschillende plekken het gebruik van JWT te zien, bijvoorbeeld mijn authorization middleware:
+
+```js
+export function requireAdmin(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(statusCodes.UNAUTHORIZED).json({ message: 'Authorization header missing' });
+    }
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, 'secret-key');
+        if (decoded.userRoles && Array.isArray(decoded.userRoles) && decoded.userRoles.includes('admin')) {
+            next();
+        } else {
+            return res.status(statusCodes.FORBIDDEN).json({ message: 'Forbidden' });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(statusCodes.UNAUTHORIZED).json({ message: 'Unauthorized' });
+    }
+}
+```
+
+NF17: The API uses Bcrypt for password hashing
+Ook dat doe ik zeker, zie het volgende uit mijn registreer systeem in authUserController:
+```js
+// Hash the password before storing it
+const hash = await bcrypt.hash(password, saltRounds);
+
+user_id++;
+// Add the new user to the array
+users.push({
+    username,
+    email,
+    hash,
+    user_roles: ['user'],
+    user_id: user_id.toString(),
+    won_auctions: [] // Initialize with an empty won_auctions array
+});
+
+console.log(`User ${username} registered successfully!`);
+
+return res.status(statusCodes.OK).json({ message: 'User registered successfully!' });
+} catch (error) {
+    res.status(statusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Something went wrong during registration!' });
+}
+```
+
+NF18: The system uses role-based authentication and authorization
+Dat doet het zeker. Dit heb ik aangeduid in mijn HTTP tests.
+
+NF19: Users can have multiple roles.
+Dat kunnen ze. Mijn gebruikers hebben een roles array waaraan toegevoegd en verwijdert kan worden. 
+Ik heb hier alleen geen functionaliteit voor aan mijn clientside, aangezien dit ook geen vereiste was en ik niet noodzakelijk vond.
+

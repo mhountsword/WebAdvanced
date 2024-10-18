@@ -2,9 +2,9 @@
     import FilterMenu from './FilterMenu.svelte';
     import AddItem from "./AddItem.svelte";
     import TimerComponent from '../TimerComponent.svelte';
-    import { items } from '../../js/itemStore.js';
-    import { isAdmin } from "../../js/adminCheck.js";
-    import { openEditModal, deleteItem} from "../../js/itemActions.js";
+    import {items} from '../../js/itemStore.js';
+    import {isAdmin} from "../../js/adminCheck.js";
+    import {openEditModal, deleteItem} from "../../js/itemActions.js";
 
     let selectedArtist = '';
     let selectedTitle = '';
@@ -80,7 +80,7 @@
                 maxYear={2024}
                 on:filterChange={handleFilterChange}
         />
-        <AddItem />
+        <AddItem/>
     </aside>
 
     <ul class="item-container">
@@ -92,7 +92,8 @@
                         <p>{item.artist}</p>
                         <p>Release year: {item.release_year}</p>
                     </a>
-                    <TimerComponent endTime={new Date(item.endTime).getTime()} on:auctionEnd={() => handleAuctionEnd(item.id)} />
+                    <TimerComponent endTime={new Date(item.endTime).getTime()}
+                                    on:auctionEnd={() => handleAuctionEnd(item.id)}/>
                 </div>
                 {#if isAdmin()}
                     <button on:click={() => openEditModal(item)}>Edit</button>
