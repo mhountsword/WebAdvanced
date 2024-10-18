@@ -1,24 +1,62 @@
-###
-### Retrieve a token that can be used for calls requiring authentication
-###
-POST {{protocol}}{{host}}:{{port}}/auth
+### Register a new user
+POST http://localhost:3000/api/auth/register
 Content-Type: application/json
-Accept: application/json
 
 {
-  "username": "user",
-  "password": "pass"
+  "username": "newUser",
+  "email": "newuser@example.com",
+  "password": "password123",
+  "passwordConfirm": "password123"
 }
 
 > {%
-client.global.set("token", "m1jnH3l3L4ng3en5uperV31l!geT0ken");
+    client.test("Request successful", function() {
+        if (response.status === 400 && response.body.message === "Username or email already exists!") {
+            client.assert(response.status === 400, "Expected 400 BAD REQUEST");
+        } else {
+            client.assert(response.status === 200, "Expected 200 OK");
+            client.assert(response.body.message === "User registered successfully!", "Expected success message");
+        }
+    });
 %}
 
-
-###
-### Invalidate the token
-###
-DELETE {{protocol}}{{host}}:{{port}}/auth
+### Login the user
+POST http://localhost:3000/api/auth/login
 Content-Type: application/json
-Accept: application/json
+
+{
+  "username": "bobRegular",
+  "password": "bobspassword"
+}
+
+> {%
+    client.test("User logged in successfully", function() {
+        client.assert(response.status === 200, "Expected 200 OK");
+        const body = response.body;
+        client.global.set("token", body.token); // Save token globally for reuse
+        client.assert(body.message === "User logged in successfully!", "Expected success message");
+    });
+%}
+
+### Get won auctions for the logged-in user
+GET http://localhost:3000/api/auth/bobRegular/won-auctions
 Authorization: Bearer {{token}}
+
+> {%
+    client.test("Get won auctions successfully", function() {
+        client.assert(response.status === 200, "Expected 200 OK");
+        const auctions = response.body;
+        client.assert(Array.isArray(auctions), "Expected an array of won auctions");
+    });
+%}
+
+### Logout the user
+POST http://localhost:3000/api/auth/logout
+Authorization: Bearer {{token}}
+
+> {%
+    client.test("User logged out successfully", function() {
+        client.assert(response.status === 200, "Expected 200 OK");
+        client.assert(response.body.message === "Logged out successfully", "Expected logout success message");
+    });
+%}

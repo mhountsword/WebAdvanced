@@ -89,7 +89,8 @@ export const getBids = (req, res) => {
 export const addBid = (req, res) => {
     const { id } = req.params;
     const newBid = req.body;
-
+    const highestBid = req.body.highestBid;
+    console.log(highestBid);
     // Bid validation
     if (!newBid.amount || newBid.amount <= req.body.highestBid) {
         return res.status(statusCodes.BAD_REQUEST).json({ message: 'Bid must be higher than the current highest bid!' });

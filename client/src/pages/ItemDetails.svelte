@@ -54,7 +54,6 @@
     <div class="bids">
         <h2>Bids</h2>
         <div>
-            <p>{selectedAuction.id}</p>
             <BidComponent bind:this={bidsComponent} itemId={selectedAuction.id} />
         </div>
     </div>

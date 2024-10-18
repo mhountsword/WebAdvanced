@@ -1,0 +1,134 @@
+### Log in user
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "bobRegular",
+  "password": "bobspassword"
+}
+
+> {%
+    client.test("User logged in successfully", function() {
+        client.assert(response.status === 200, "Expected 200 OK");
+        const body = response.body;
+        client.global.set("userToken", body.token); // Save token globally
+        client.assert(body.message === "User logged in successfully!", "Expected success message");
+    });
+%}
+
+### Log in admin
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+> {%
+ client.test("User logged in successfully", function() {
+     client.assert(response.status === 200, "Expected 200 OK");
+     const body = response.body;
+     client.global.set("adminToken", body.token);
+     client.assert(body.message === "User logged in successfully!", "Expected success message");
+ })
+ %}
+
+### Get all items
+GET http://localhost:3000/api/items
+Content-Type: application/json
+
+> {%
+    client.test("Retrieve all items", function() {
+        client.assert(response.status === 200, "Expected 200 OK");
+        const items = response.body;
+        client.assert(Array.isArray(items), "Expected an array of items");
+    });
+%}
+
+### Add a new item (Admin)
+POST http://localhost:3000/api/items
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "OK Computer",
+  "artist": "Radiohead",
+  "genre": "Alternative Rock",
+  "release_year": 1997
+}
+
+> {%
+    client.test("Item added successfully", function() {
+        client.assert(response.status === 201, "Expected 201 Created");
+        const body = response.body;
+        client.assert(body.message === "Item added successfully", "Expected success message");
+    });
+%}
+
+### Add a new bid (Logged-in user)
+POST http://localhost:3000/api/items/1/bids
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "amount": 100,
+  "highestBid": 0
+}
+
+> {%
+    client.test("Bid added successfully", function() {
+        client.assert(response.status === 201, "Expected 201 Created");
+        const bid = response.body;
+        client.assert(bid.amount === 100, "Expected bid amount to be 100");
+    });
+%}
+
+### Add a new item (without Admin)
+POST http://localhost:3000/api/items
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "title": "OK Computer",
+  "artist": "Radiohead",
+  "genre": "Alternative Rock",
+  "release_year": 1997
+}
+
+> {%
+    client.test("Unauthorized attempt to add item", function() {
+        client.assert(response.status === 403, "Expected 403 Unauthorized");
+    });
+%}
+
+### Add an invalid bid (lower than current highest bid)
+POST http://localhost:3000/api/items/1/bids
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "amount": 50,
+  "highestBid": 100
+}
+
+> {%
+    client.test("Bid failed due to low amount", function() {
+        client.assert(response.status === 400, "Expected 400 Bad Request");
+        const body = response.body;
+        client.assert(body.message === "Bid must be higher than the current highest bid!", "Expected validation error message");
+    });
+%}
+
+### Get bids for a non-existent item
+GET http://localhost:3000/api/items/9999/bids
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+> {%
+    client.test("Item not found", function() {
+        client.assert(response.status === 404, "Expected 404 Not Found");
+        const body = response.body;
+        client.assert(body.message === "Item not found", "Expected item not found message");
+    });
+%}

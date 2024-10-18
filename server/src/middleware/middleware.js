@@ -2,16 +2,21 @@ import jwt from 'jsonwebtoken';
 import statusCodes from "http-status-codes";
 
 export function requireAdmin(req, res, next) {
-    const token = req.headers.authorization.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(statusCodes.UNAUTHORIZED).json({ message: 'Authorization header missing' });
+    }
+    const token = authHeader.split(' ')[1];
+
     try {
         const decoded = jwt.verify(token, 'secret-key');
-        if (decoded.userRole === 'admin') {
+        if (decoded.userRoles && Array.isArray(decoded.userRoles) && decoded.userRoles.includes('admin')) {
             next();
         } else {
             return res.status(statusCodes.FORBIDDEN).json({ message: 'Forbidden' });
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(statusCodes.UNAUTHORIZED).json({ message: 'Unauthorized' });
     }
 }
@@ -28,14 +33,12 @@ export function isLoggedIn(req, res, next) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(statusCodes.UNAUTHORIZED).json({ message: 'Unauthorized: No token provided.' });
     }
-
     const token = authHeader.split(' ')[1]; // Extract token
 
     try {
         req.user = jwt.verify(token, 'secret-key');
         next(); // Call the next middleware
     } catch (error) {
-        console.log(error.message);
         if (error.name === 'TokenExpiredError') {
             return res.status(statusCodes.UNAUTHORIZED).json({ message: 'Token expired' });
         } else {

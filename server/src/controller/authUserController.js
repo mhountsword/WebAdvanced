@@ -12,7 +12,7 @@ const users = [
         username: 'admin',
         email: 'admin@admin',
         hash: '$2a$10$gdtVhj.WfVCVkZbf65wHEup/ZijaBbjZ9B6O3ihG6ncBpnjFGkcYe', // Pre-hashed password for 'admin'
-        user_role: 'admin',
+        user_roles: ['admin'],
         user_id: '0',
         won_auctions: []
     },
@@ -20,7 +20,7 @@ const users = [
         username: 'bobRegular',
         email: 'bob@email.com',
         hash: '$2a$10$xs9pZ5U93a9.q8LaSVXmuOl8ghv/.znZ90b0gCLQ4b/YKGYlgmBzG', // Pre-hashed password
-        user_role: 'user',
+        user_role: ['user'],
         user_id: '1',
         won_auctions: []
     }
@@ -55,13 +55,12 @@ export const registerNewUser = async (req, res) => {
             username,
             email,
             hash,
-            user_role: 'user',
+            user_roles: ['user'],
             user_id: user_id.toString(),
             won_auctions: [] // Initialize with an empty won_auctions array
         });
 
         console.log(`User ${username} registered successfully!`);
-        console.log(users);
 
         return res.status(statusCodes.OK).json({ message: 'User registered successfully!' });
     } catch (error) {
@@ -92,7 +91,7 @@ export const loginUser = async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign(
-            { userId: user.user_id, username: user.username, userRole: user.user_role },
+            { userId: user.user_id, username: user.username, userRoles: user.user_roles },
             'secret-key',
             { expiresIn: '2h' } // Token expiration of 2 hours
         );

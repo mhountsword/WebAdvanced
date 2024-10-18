@@ -2,7 +2,7 @@ export function isAdmin() {
   const token = sessionStorage.getItem("token");
   if (token) {
     const decodedToken = parseJwt(token);
-    return decodedToken.userRole === "admin";
+    return decodedToken.userRoles[0].includes('admin');
   }
   return false;
 }
