@@ -1,19 +1,47 @@
 <script>
     import BidComponent from "../components/BidComponent.svelte";
     import TimerComponent from "../components/TimerComponent.svelte";
-    import { resetAuctionOnServer } from '../js/auctionReset.js'; // Function to reset the auction
+    import { onMount, onDestroy } from "svelte";
 
     let selectedAuction = JSON.parse(sessionStorage.getItem('selectedAuction'));
+    let auctionEnded = false;
+    let pollInterval;
+    let bidsComponent; // To hold the BidComponent instance
 
-    function handleAuctionEnd() {
-        // Reset the auction logic, e.g., by calling an API to reset it
-        resetAuctionOnServer(selectedAuction.id).then(updatedAuction => {
-            selectedAuction = updatedAuction; // Update the auction details
-        });
+    async function fetchAuctionData(id) {
+        const res = await fetch(`http://localhost:3000/api/items/${id}`);
+        return res.json();
     }
 
-    console.log(selectedAuction.endTime);
-    console.log(selectedAuction);
+    async function handleAuctionEnd() {
+        if (!auctionEnded) {
+            auctionEnded = true;
+            selectedAuction = await fetchAuctionData(selectedAuction.id);
+            bidsComponent.fetchNewBidsOnAuctionEnd(); // Refresh BidComponent
+            auctionEnded = false;
+        }
+    }
+
+    function startPolling() {
+        pollInterval = setInterval(async () => {
+            selectedAuction = await fetchAuctionData(selectedAuction.id);
+            const now = new Date().getTime();
+            if (now >= new Date(selectedAuction.endTime).getTime() && !auctionEnded) {
+                await handleAuctionEnd();
+            }
+        }, 5000);
+    }
+
+    onMount(async () => {
+        selectedAuction = await fetchAuctionData(selectedAuction.id);
+        startPolling();
+    });
+
+    onDestroy(() => {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+        }
+    });
 </script>
 
 <div class="container">
@@ -26,33 +54,33 @@
     <div class="bids">
         <h2>Bids</h2>
         <div>
-            <BidComponent itemId={selectedAuction.id} />
+            <p>{selectedAuction.id}</p>
+            <BidComponent bind:this={bidsComponent} itemId={selectedAuction.id} />
         </div>
     </div>
 </div>
-
 
 <style>
     .container {
         font-size: 22px;
         display: grid;
-        grid-template-columns: 1fr 1fr; /* Two equal-width columns */
-        grid-template-rows: auto 1fr auto; /* Header, content, and footer rows */
-        gap: 20px; /* Spacing between grid items */
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto 1fr auto;
+        gap: 20px;
         padding: 20px;
     }
 
     .item-details {
-        grid-column: 1; /* Place the description in the second column */
+        grid-column: 1;
         grid-row: 2;
     }
 
     .bids {
-        grid-column: 2; /* Place the bids in the second column */
+        grid-column: 2;
         grid-row: 2;
     }
 
     ul {
-        list-style:none;
+        list-style: none;
     }
 </style>

@@ -7,6 +7,7 @@
   import Login from "./pages/Login.svelte";
   import Header from "./components/Header.svelte";
   import ItemDetails from "./pages/ItemDetails.svelte";
+  import Profile from "./pages/Profile.svelte";
 
   let page;
   let params;
@@ -33,6 +34,11 @@
   });
   router('/login', (ctx) => {
     page = Login;
+    currentRoute = ctx.pathname;
+    params = ctx;
+  });
+  router('/profile', (ctx) => {
+    page = Profile;
     currentRoute = ctx.pathname;
     params = ctx;
   })

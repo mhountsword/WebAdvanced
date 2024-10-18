@@ -14,7 +14,6 @@ app.use("/api/auth", auth); //logging in & out, registering
 app.use("/api/items", itemsController); //getting & adding items
 
 app.get('/', (req, res) => {
-  console.log(req);
   res.json({ msg: "Welcome to the backend API."});
 })
 

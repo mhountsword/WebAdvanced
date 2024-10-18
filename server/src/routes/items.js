@@ -8,6 +8,7 @@ const router = express.Router();
 
 //items
 router.get('/', itemController.getItems);
+router.get('/:id', itemController.getItemById);
 router.post('/', middleware.requireAdmin, itemController.addItem);
 router.put('/:id', middleware.requireAdmin, itemController.editItem);
 router.delete('/:id', middleware.requireAdmin, itemController.deleteItem);

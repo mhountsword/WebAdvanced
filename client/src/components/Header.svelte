@@ -11,6 +11,7 @@
         </div>
         <div class="register">
             {#if isLoggedIn()}
+                <a href="/profile">Profile</a>
                 <a href="/logout" on:click|preventDefault={handleLogout}>Logout</a>
             {:else}
                 <a href="/register" class:active={active === '/register'}>Register / Login</a>

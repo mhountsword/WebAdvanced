@@ -1,24 +1,44 @@
 <script>
-    import { onMount, createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onDestroy } from "svelte";
 
-    export let endTime; // Time when the auction ends
-    let remainingTime = 0;
+    export let endTime; // Auction end time
+    let remainingTime;
     let interval;
 
     const dispatch = createEventDispatcher();
 
-    function calculateTimeLeft() {
+    // Calculate remaining time immediately when the component loads
+    function calculateRemainingTime() {
         const now = new Date().getTime();
-        remainingTime = Math.max(0, endTime - now);
-
-        // If the auction has ended, notify the parent
-        if (remainingTime === 0) {
-            clearInterval(interval); // Stop the timer
-            dispatch('auctionEnd'); // Notify the parent that the auction has ended
-        }
+        remainingTime = endTime - now;
     }
 
-    // Convert milliseconds to readable time
+    // Start the timer calculation
+    function startTimer() {
+        interval = setInterval(() => {
+            calculateRemainingTime();
+
+            // If time runs out, dispatch auctionEnd event
+            if (remainingTime <= 0) {
+                remainingTime = 0;
+                clearInterval(interval); // Stop the timer
+                dispatch('auctionEnd'); // Notify parent that auction ended
+            }
+        }, 1000); // Update timer every second
+    }
+
+    // Reactively re-start the timer if endTime changes
+    $: if (endTime) {
+        calculateRemainingTime(); // Calculate time as soon as component is loaded
+        startTimer(); // Then start the interval
+    }
+
+    // Cleanup on destroy
+    onDestroy(() => {
+        clearInterval(interval);
+    });
+
+    // Convert milliseconds to readable time format
     function formatTime(ms) {
         let seconds = Math.floor((ms / 1000) % 60);
         let minutes = Math.floor((ms / (1000 * 60)) % 60);
@@ -27,17 +47,6 @@
 
         return `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
-
-    // Start timer when component mounts
-    onMount(() => {
-        calculateTimeLeft();
-        interval = setInterval(calculateTimeLeft, 1000);
-
-        // Clean up when component is destroyed
-        return () => clearInterval(interval);
-    });
-
-    console.log(remainingTime);
 </script>
 
 {#if remainingTime > 0}

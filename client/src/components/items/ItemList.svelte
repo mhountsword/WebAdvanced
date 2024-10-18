@@ -38,6 +38,24 @@
         sessionStorage.setItem('selectedAuction', JSON.stringify(item));
         window.location.href = '/item-details';
     }
+
+    function handleAuctionEnd(itemId) {
+        const updatedItems = $items.map(item =>
+            item.id === itemId
+                ? fetchAuctionData(itemId).then(data => ({...item, ...data}))
+                : item
+        );
+
+        Promise.all(updatedItems)
+            .then(itemsData => {
+                items.set(itemsData);
+            });
+    }
+
+    async function fetchAuctionData(id) {
+        const res = await fetch(`http://localhost:3000/api/items/${id}`);
+        return res.json();
+    }
 </script>
 
 <main class="main-container">
@@ -65,7 +83,7 @@
                         <p>{item.artist}</p>
                         <p>Release year: {item.release_year}</p>
                     </a>
-                    <TimerComponent endTime={new Date(item.endTime).getTime()} />
+                    <TimerComponent endTime={new Date(item.endTime).getTime()} on:auctionEnd={() => handleAuctionEnd(item.id)} />
                 </div>
                 {#if isAdmin()}
                     <button on:click={() => openEditModal(item)}>Edit</button>

@@ -7,4 +7,7 @@ router.post("/register", authController.registerNewUser);
 router.post("/login", authController.loginUser);
 router.post("/logout", middleware.isLoggedIn, authController.logoutUser);
 
+//get won auctions
+router.get('/:username/won-auctions', middleware.isLoggedIn, authController.getWonAuctions);
+
 export default router;

@@ -1,6 +1,7 @@
 import statusCodes from 'http-status-codes';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import {items} from "./itemController.js";
 
 const saltRounds = 10; // Number of salting rounds for bcrypt
 let user_id = 1; // Start user ID after the admin user
@@ -114,6 +115,25 @@ export const logoutUser = async (req, res) => {
         return res.status(statusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Logout failed' });
     }
 };
+
+// Get users' won auctions
+export const getWonAuctions = async (req, res) => {
+    const { username } = req.params;
+    try {
+        const user = users.find(user => user.username === username);
+        if (!user) {
+            return res.status(statusCodes.NOT_FOUND).json({ message: 'User not found' });
+        }
+
+        // Assuming you have an items array available (similar to your itemController)
+        const wonAuctions = items.filter(item => user.won_auctions.includes(item.id));
+
+        return res.status(statusCodes.OK).json(wonAuctions);
+    } catch (error) {
+        console.error(error);
+        return res.status(statusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Failed to fetch won auctions' });
+    }
+}
 
 // Helper function to get a user by username
 export const getUserByUsername = async (username) => {

@@ -1,5 +1,5 @@
 <script>
-    import {onMount} from "svelte";
+    import { onMount } from "svelte";
     import { isLoggedIn } from "../js/logout.js";
     import MessageComponent from "./MessageComponent.svelte";
 
@@ -10,19 +10,21 @@
     let newBid = { username: '', amount: 0, highestBid };
     let user = null;
 
+    // This function can be called from the parent component
+    export function fetchNewBidsOnAuctionEnd() {
+        fetchBids(); // Re-fetch bids when auction ends
+    }
+
     async function fetchBids() {
         const res = await fetch(`http://localhost:3000/api/items/${itemId}/bids`);
         bids = await res.json();
-        bids.sort((a,b) => b-a).slice(0,5); //display top 5 bids
+        bids.sort((a, b) => b.amount - a.amount); // Sort bids
+        bids = bids.slice(0, 5); // Display top 5 bids
         updateHighestBid();
     }
 
     function updateHighestBid() {
-        if (bids.length > 0) {
-            highestBid = Math.max(...bids.map(bid => bid.amount));
-        } else {
-            highestBid = 0;
-        }
+        highestBid = bids.length > 0 ? Math.max(...bids.map(bid => bid.amount)) : 0;
     }
 
     async function addBid() {
@@ -42,18 +44,18 @@
             bids = [...bids, addedBid];
             bids.sort((a, b) => b.amount - a.amount);
             updateHighestBid();
+            await fetchBids();
             newBid.amount = 0;
         } else {
             console.error('Failed to add bid');
         }
     }
 
-    //fetch bids when the component loads
+    // Fetch bids when the component loads
     onMount(() => {
         user = isLoggedIn();
-        console.log(user);
         fetchBids();
-    })
+    });
 </script>
 
 <div class="bids-container">
