@@ -11,7 +11,14 @@ export let items = [
 // ITEMS API
 export const getItems = (req, res) => {
     try {
-        return res.status(statusCodes.OK).json(items);
+        const itemsWithLinks = items.map(item => ({
+            ...item,
+            _links: {
+                self: { href: `/items/${item.id}` },
+                bids: { href: `/items/${item.id}/bids` }
+            }
+        }));
+        return res.status(statusCodes.OK).json({ _links: { self: { href: '/items' } }, items: itemsWithLinks });
     } catch (error) {
         return res.status(statusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Failed to retrieve items' });
     }
@@ -22,12 +29,18 @@ export const getItemById = (req, res) => {
     const item = items.find(item => item.id == id);
 
     if (item) {
-        return res.status(statusCodes.OK).json(item);
+        const itemWithLinks = {
+            ...item,
+            _links: {
+                self: { href: `/items/${item.id}` },
+                bids: { href: `/items/${item.id}/bids` }
+            }
+        };
+        return res.status(statusCodes.OK).json(itemWithLinks);
     } else {
         return res.status(statusCodes.NOT_FOUND).json({ message: 'Item not found' });
     }
-}
-
+};
 export const addItem = (req, res) => {
     try {
         const newItem = req.body;
@@ -42,8 +55,14 @@ export const addItem = (req, res) => {
         newItem.bids = [];
         newItem.endTime = generateRandomEndTime();
         newItem.finished = false;
+        const itemWithLinks = {
+            ...newItem, // Assuming newBid contains the newly added bid
+            _links: {
+                item: { href: `/items/${id}` } // Link back to the item
+            }
+        };
         items.push(newItem);
-        return res.status(statusCodes.CREATED).json({ message: 'Item added successfully', item: newItem });
+        return res.status(statusCodes.CREATED).json({ message: 'Item added successfully', itemWithLinks });
     } catch (error) {
         return res.status(statusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Failed to add item' });
     }

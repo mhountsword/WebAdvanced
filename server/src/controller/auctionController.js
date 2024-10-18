@@ -50,5 +50,5 @@ const resetAuction = (item) => {
     console.log(`Auction for ${item.title} has been reset! New end time is ${item.endTime}`);
 };
 
-// Set interval to check auctions every 10 seconds
-setInterval(checkAuctions, 10000);
+// Set interval to check auctions every second
+setInterval(checkAuctions, 5000);

@@ -51,6 +51,13 @@
         Promise.all(updatedItems)
             .then(itemsData => {
                 items.set(itemsData);
+
+                // Force a re-render of the TimerComponent
+                const updatedItem = itemsData.find(item => item.id === itemId);
+                if (updatedItem) {
+                    console.log("Updating...");
+                    updatedItem.endTime = new Date(updatedItem.endTime).getTime();
+                }
             });
     }
 

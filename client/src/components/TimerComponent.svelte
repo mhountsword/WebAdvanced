@@ -21,10 +21,10 @@
             // If time runs out, dispatch auctionEnd event
             if (remainingTime <= 0) {
                 remainingTime = 0;
-                clearInterval(interval); // Stop the timer
-                dispatch('auctionEnd'); // Notify parent that auction ended
+                clearInterval(interval);
+                dispatch('auctionEnd');
             }
-        }, 1000); // Update timer every second
+        }, 100); // Update timer every second
     }
 
     // Reactively re-start the timer if endTime changes

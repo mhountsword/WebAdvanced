@@ -9,11 +9,11 @@
 The table below shows an overview of which test covers which functional requirements
 
 | Test | F1 | F2 | F3 | F4 | F5 | F6 | F7 | F8 | F9 | F10 | 
-|:----:| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-|  T1  | | | | | | | | | | |
-|  T2  | | | | | | | | | | |
-|  T3  | | | | | | | | | | |
-|  T4  | | | | | | | | | | |
+|:----:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:---:|
+|  T1  | x  | x  | x  |    |    |    | x  |    | x  |     |
+|  T2  |    |    |    |    | x  | x  |    | x  | x  |  x  |
+|  T3  |    |    |    | x  |    |    |    |    |    |     |
+
 
 
 ### Non funtional
@@ -28,6 +28,144 @@ The table below shows an overview of which test covers which non-functional requ
 |  T4  |     |     |     |     |     |     |     |     |     |      |      |      |      |      |      |      |      |      |      |
 
 ## Test plan
-
+### De Scope
+Ik ga tijdens het testen van mijn assignment focusen op de functionaliteit van de functionele en non-functionele requirements. 
+Hierin is ook wel duidelijk gemaakt wat er exact getest moet worden. Vooral word getest welke functionaliteiten wel en niet goed werken.
+### Test Strategy
+Ik ga de tests deels handmatig uitvoeren, en deels automatisch. Veel functionele testing is al uitgevoerd in de REST testbestanden. 
+Mocht een REST test ook een functionaliteit aanvinken, geef ik dat aan. Ik ga de tests opsplitsen in een aantal verschillende categorieen,
+gebasseerd op welk deel van de applicatie samenhangt aan een bepaalde test.
 
 ## Test report
+# Functional Tests
+## T1
+Met de eerste functionele test ga ik focussen op de functionaliteit van items & auctions.
+
+Requirements: Items moeten bekeken kunnen worden in een lijst. Deze lijst moet zichtbaar zijn voor gebruikers.
+Elke item in de lijst moet een naam bevatten, en een aantal attributen uniek aan de item. Ook moeten de items een lijst aan biedingen bevatten, en wanneer de auction is afgelopen.
+Items moeten filterbaar kunnen zijn op een aantal attributen. In mijn geval zijn de unieke attribuut voor elk item:
+ * Wie het album heeft gemaakt
+ * Wanneer het album is gemaakt
+ * Welk genre het album is
+Ook moeten items gezocht kunnen worden op hun naam, oftewel de titel van het album. Biedingen die op een item staan mogen niet verwijderd worden. Als een bieding wordt toegevoegd, wordt dit ook real-time weergegeven.
+Aangezien alle users in mijn applicatie mogen bieden (mits ze zijn ingelogd), kan er geen user bestaan die niet kan bieden. Daarentegen mogen alleen users met een admin role auctions wijzigen en beheren.
+
+|                                      T1                                       | Success | Priority | Remarks |  
+|:-----------------------------------------------------------------------------:|:-------:|----------|---------|
+|                          Items kunnen bekeken worden                          |    x    | High     |         | | |
+|                    Elke item in lijst heeft een naam & ID                     |    x    | High     |         | | |
+|                  Elke item in lijst heeft unieke attributen                   |    x    | High     |         | | |
+| Elke item heeft een aflopende timer die aanduidt hoelang de bieding nog loopt |    x    | High     |         | | 
+|                       Er kan op elk item geboden worden                       |    x    | High     |         | 
+|                  Items moeten gezocht kunnen worden op titel                  |    x    | High     |         | 
+
+Zodra de webapplicatie is geopend, is dit het eerste wat de gebruiker ziet:
+![img.png](img.png)
+Hieraan zijn een aantal requirements al direct duidelijk: items kunnen bekeken worden, elke item heeft een naam en attributen, en elke item heeft een aflopende timer.
+Als er op een item word geklikt, komt de itemDetails pagina in beeld:
+
+![img_1.png](img_1.png)
+Normaliter is hier rechts een overzicht van alle biedingen te zien, maar aangezien de gebruiker niet is ingelogd kunnen er nog geen biedingen geplaatst worden.
+Als we terug gaan naar het hoofdscherm, kunnen we filteren op de attributen van de items, als volgt:
+
+Op artiest:
+![img_2.png](img_2.png)
+
+Op titel:
+![img_3.png](img_3.png)
+
+Op genre:
+![img_4.png](img_4.png)
+
+En op release jaar:
+![img_5.png](img_5.png)
+
+Hiermee is duidelijk te maken dat alle basisfunctionaliteit in de applicatie werkt naar behoren.
+
+## T2
+Met de tweede tests gaan we kijken naar de validatie en sanitering van clientside en serverside input. Neem als voorbeeld de registreerpagina:
+![img_6.png](img_6.png)
+Als er een veld mist om een gebruiker te registreren, word er een melding getoond dat er nog een veld ingevuld moet worden. Dit gebeurd door de <input required> tags in HTML.
+Laten we een gebruiker aanmaken.
+![img_7.png](img_7.png)
+
+Zodra alle data is ingevuld, kunnen we de gebruiker aanmaken:
+![img_8.png](img_8.png)
+Zonder opnieuw in te loggen komt de gebruiker terecht op de hoofdpagina. De gebruiker mag nu ook biedingen plaatsen. Dat gaat zo te werk:
+![img_9.png](img_9.png)
+
+In de itemDetails pagina is er nu een inputveld vrijgekomen: om biedingen te plaatsen. Er kan alleen geen bieding geplaatst als die lager dan 0 is, of lager is dan de hoogste bieding.
+Desondanks dat er nu geen biedingen zijn, kan er geen bieding geplaatst worden aangezien deze lager of gelijk is aan 0. Zodra de gebruiker een getal invult wat hoger is dan 0, mag dat wel:
+
+![img_10.png](img_10.png)
+
+En als de gebruiker op de 'Add Bid' knop klikt, komt de bieding direct tevoorschijn:
+
+![img_11.png](img_11.png)
+
+Ook andere gebruikers krijgen deze bieding te zien:
+
+![img_12.png](img_12.png)
+
+Als de gebruiker als admin inlogt, krijgen ze ook een aantal extra knoppen te zien:
+
+![img_13.png](img_13.png)
+
+Om items aan te passen, toe te voegen en te verwijderen. Deze kunnen ook alleen maar gebruikt worden door de admin, dankzij mijn middleware. Hiervoor heb ik ook REST tests geschreven die dit confirmen.
+Hierdoor weet ik dat mijn input ook in de backend geverifieerd wordt. Daarbovenop heb ik ook andere tests geschreven die dit checken:
+
+```http request
+### Add an invalid bid (lower than current highest bid)
+POST http://localhost:3000/api/items/1/bids
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "amount": 50,
+  "highestBid": 100
+}
+
+> {%
+    client.test("Bid failed due to low amount", function() {
+        client.assert(response.status === 400, "Expected 400 Bad Request");
+        const body = response.body;
+        client.assert(body.message === "Bid must be higher than the current highest bid!", "Expected validation error message");
+    });
+%}
+```
+Deze tests zijn ook succesvol.
+
+| T2                                                       | Success | Priority | Remarks                                    |
+|----------------------------------------------------------|---------|----------|--------------------------------------------|
+| Input is gevalideert aan de clientside                   | X       | High     |                                            |
+| Input is gevalideert aan de serverside                   | X       | High     | Additional confirmation through HTTP tests |
+| Bids worden ge-update als een gebruiker een bid toevoegt | X       | Medium   |                                            |
+| Alleen ingelogde gebruikers mogen bids toevoegen         | X       | High     | Additional confirmation through HTTP tests |
+| Alleen admins mogen items aanpassen                      | X       | High     | Additional confirmation through HTTP tests |
+
+## T3
+Ten slotte kunnen bids niet verwijdert of aangepast worden zodra ze zijn geplaatst. Aangezien hier letterlijk geen functionaliteit voor is in mijn applicatie, weet ik vrij zeker dat dit werkt.
+![img_14.png](img_14.png)
+Hier is nergens functionaliteit voor de gebruiker om een bid aan te passen of om te verwijderen. Ook zijn hier geen routes of API endpoints voor.
+
+| T3                                                        | Success | Priority | Remarks |
+|-----------------------------------------------------------|---------|----------|---------|
+| Bids kunnen niet aangepast worden nadat ze zijn geplaatst | X       | High     |         |   
+
+# Non-functional Tests
+## T1
+Ik ga eerst beginnen met alle zaken die de API wel en niet kan returnen.
+NF1: The API returns valid JSON objects or arrays.
+Uit Postman:
+![img_15.png](img_15.png)
+
+NF2: The API return appropiate HTTP status codes
+Ten eerste is dit getest in mijn HTTP tests. Maar daarbovenop:
+![img_16.png](img_16.png)
+En ook als er een foute response ge-returned moet worden:
+![img_17.png](img_17.png) (Hier is de admin voor nodig)
+
+NF3: The API uses the correct HTTP verbs for its operations.<br>
+Zoals heirboven aangegeven, zijn de verbs correct. Er wordt een GET request gemaakt als items gefetched moeten worden, en een PUT om een item aan te passen.
+
+NF4: The API implements at least ReST level 3
