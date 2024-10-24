@@ -57,56 +57,56 @@ Aangezien alle users in mijn applicatie mogen bieden (mits ze zijn ingelogd), ka
 |                  Items moeten gezocht kunnen worden op titel                  |    x    | High     |         | 
 
 Zodra de webapplicatie is geopend, is dit het eerste wat de gebruiker ziet:
-![img.png](img.png)
+![img.png](assets/img.png)
 Hieraan zijn een aantal requirements al direct duidelijk: items kunnen bekeken worden, elke item heeft een naam en attributen, en elke item heeft een aflopende timer.
 Als er op een item word geklikt, komt de itemDetails pagina in beeld:
 
-![img_1.png](img_1.png)
+![img_1.png](assets/img_1.png)
 Normaliter is hier rechts een overzicht van alle biedingen te zien, maar aangezien de gebruiker niet is ingelogd kunnen er nog geen biedingen geplaatst worden.
 Als we terug gaan naar het hoofdscherm, kunnen we filteren op de attributen van de items, als volgt:
 
 Op artiest:
-![img_2.png](img_2.png)
+![img_2.png](assets/img_2.png)
 
 Op titel:
-![img_3.png](img_3.png)
+![img_3.png](assets/img_3.png)
 
 Op genre:
-![img_4.png](img_4.png)
+![img_4.png](assets/img_4.png)
 
 En op release jaar:
-![img_5.png](img_5.png)
+![img_5.png](assets/img_5.png)
 
 Hiermee is duidelijk te maken dat alle basisfunctionaliteit in de applicatie werkt naar behoren.
 
 ## T2
 Met de tweede tests gaan we kijken naar de validatie en sanitering van clientside en serverside input. Neem als voorbeeld de registreerpagina:
-![img_6.png](img_6.png)
+![img_6.png](assets/img_6.png)
 Als er een veld mist om een gebruiker te registreren, word er een melding getoond dat er nog een veld ingevuld moet worden. Dit gebeurd door de <input required> tags in HTML.
 Laten we een gebruiker aanmaken.
-![img_7.png](img_7.png)
+![img_7.png](assets/img_7.png)
 
 Zodra alle data is ingevuld, kunnen we de gebruiker aanmaken:
-![img_8.png](img_8.png)
+![img_8.png](assets/img_8.png)
 Zonder opnieuw in te loggen komt de gebruiker terecht op de hoofdpagina. De gebruiker mag nu ook biedingen plaatsen. Dat gaat zo te werk:
-![img_9.png](img_9.png)
+![img_9.png](assets/img_9.png)
 
 In de itemDetails pagina is er nu een inputveld vrijgekomen: om biedingen te plaatsen. Er kan alleen geen bieding geplaatst als die lager dan 0 is, of lager is dan de hoogste bieding.
 Desondanks dat er nu geen biedingen zijn, kan er geen bieding geplaatst worden aangezien deze lager of gelijk is aan 0. Zodra de gebruiker een getal invult wat hoger is dan 0, mag dat wel:
 
-![img_10.png](img_10.png)
+![img_10.png](assets/img_10.png)
 
 En als de gebruiker op de 'Add Bid' knop klikt, komt de bieding direct tevoorschijn:
 
-![img_11.png](img_11.png)
+![img_11.png](assets/img_11.png)
 
 Ook andere gebruikers krijgen deze bieding te zien:
 
-![img_12.png](img_12.png)
+![img_12.png](assets/img_12.png)
 
 Als de gebruiker als admin inlogt, krijgen ze ook een aantal extra knoppen te zien:
 
-![img_13.png](img_13.png)
+![img_13.png](assets/img_13.png)
 
 Om items aan te passen, toe te voegen en te verwijderen. Deze kunnen ook alleen maar gebruikt worden door de admin, dankzij mijn middleware. Hiervoor heb ik ook REST tests geschreven die dit confirmen.
 Hierdoor weet ik dat mijn input ook in de backend geverifieerd wordt. Daarbovenop heb ik ook andere tests geschreven die dit checken:
@@ -142,7 +142,7 @@ Deze tests zijn ook succesvol.
 
 ## T3
 Ten slotte kunnen bids niet verwijdert of aangepast worden zodra ze zijn geplaatst. Aangezien hier letterlijk geen functionaliteit voor is in mijn applicatie, weet ik vrij zeker dat dit werkt.
-![img_14.png](img_14.png)
+![img_14.png](assets/img_14.png)
 Hier is nergens functionaliteit voor de gebruiker om een bid aan te passen of om te verwijderen. Ook zijn hier geen routes of API endpoints voor.
 
 | T3                                                        | Success | Priority | Remarks |
@@ -152,16 +152,16 @@ Hier is nergens functionaliteit voor de gebruiker om een bid aan te passen of om
 # Non-functional Tests
 NF1: The API returns valid JSON objects or arrays.
 Uit Postman:
-![img_15.png](img_15.png)
+![img_15.png](assets/img_15.png)
 
 NF2: The API return appropiate HTTP status codes
 Ten eerste is dit getest in mijn HTTP tests. Maar daarbovenop:
-![img_16.png](img_16.png)
+![img_16.png](assets/img_16.png)
 En ook als er een foute response ge-returned moet worden:
-![img_17.png](img_17.png) (Hier is de admin voor nodig)
+![img_17.png](assets/img_17.png) (Hier is de admin voor nodig)
 
 NF3: The API uses the correct HTTP verbs for its operations.<br>
-Zoals heirboven aangegeven, zijn de verbs correct. Er wordt een GET request gemaakt als items gefetched moeten worden, en een PUT om een item aan te passen.
+Zoals hierboven is aangegeven, zijn de verbs correct. Er wordt een GET request gemaakt als items gefetched moeten worden, en een PUT om een item aan te passen.
 
 NF4: The API implements at least ReST level 3
 Het is me helaas niet gelukt om rest level 3 toe te passen. Al vind ik het wel gek dat dit niet is benoemd in de les! Aparte requirement.
